@@ -1,0 +1,18 @@
+from typing import List
+
+
+def short_to_byte(short_list: List):
+    return short_list
+
+
+class TestVector:
+    def __init__(self, keygen_seed, h, packed_h, g, f, F, packed_F, packed_listed_F,
+                 m, encrypt_seed, b, m_bin, m_trin, s_data, r, R, R4, mask, m_prime,
+                 e, packed_e, A, a):
+        pass
+
+
+if __name__ == '__main__':
+    print(short_to_byte([0x4d, 0xf5, 0x23, 0xce, 0x92, 0x11, 0x99, 0x0a, 0x30, 0xa4, 0xc1,
+                         0x2b, 0x31, 0x94, 0xff, 0xc9, 0xad, 0x15, 0x1b, 0x81, 0xd1, 0x39,
+                         0xae, 0x25, 0x89, 0x0c, 0x5d, 0x50, 0x05, 0x4c, 0xe3, 0xda]))
