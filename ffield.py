@@ -9,6 +9,7 @@ LOG = logging.getLogger(__name__)
 class Field:
     def __init__(self, mod_number=2, main_poly: np.poly1d = None):
         self.mod_number = mod_number
+        self.original_poly = main_poly
 
         if main_poly is not None:
             self.main_poly = self._poly_number_mod(main_poly)
@@ -113,7 +114,7 @@ class Field:
         return True, self.poly_mod(s_0 * self.number_inverse(r_0[0]))
 
     def poly_inv_pow_2(self, poly: np.poly1d, original_prime) -> (bool, np.poly1d):
-        field_original = Field(original_prime, self.main_poly)
+        field_original = Field(original_prime, self.original_poly)
         exists, normal_inv = field_original.poly_inverse(poly)
         if not exists:
             return False, None
@@ -123,11 +124,11 @@ class Field:
         if not exists:
             return False, None
         while e > 0:
-            field = Field(original_prime ** n, self.main_poly)
+            field = Field(original_prime ** n, self.original_poly)
             normal_inv = field.poly_mod(2 * normal_inv - poly * normal_inv * normal_inv)
             e = e // 2
             n = n * 2
-        return True, normal_inv
+        return True, self.poly_mod(normal_inv)
 
     @lru_cache
     def __find_exponent(self, original: int, pow_number: int) -> (bool, np.poly1d):

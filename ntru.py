@@ -1,12 +1,19 @@
+from enum import Enum, auto
+
 import numpy as np
 
 from ffield import Field
 from util import generate_random_binary_polynomial
 
 
+class Implementation(Enum):
+    OLD = auto()
+    NEW = auto()
+
+
 class NTRUParameters:
     def __init__(self, n, p, q, f=None, g=None, r=None, d_f: (int, int) = None, d_g=None, d_r=None,
-                 num_iter=1000, choose_minus=True, q_exponent_of=2):
+                 num_iter=1000, choose_minus=True, q_exponent_of=2, implementation=Implementation.OLD):
         # public parameters
         self.N = n
         self.mod_poly = np.poly1d([1] + [0 for _ in range(self.N - 1)] + [-1])
@@ -22,36 +29,53 @@ class NTRUParameters:
         self.f_q = None
         self.choose_minus = choose_minus
         self.d_r = d_r
+        self.implementation = implementation
 
         self.init_polynomials(num_iter, choose_minus, d_f, d_g, q_exponent_of)
-        self.h = self.field_q.poly_mod(self.g * self.f_q)
+
+        if self.implementation == Implementation.OLD:
+            self.h = self.field_q.poly_mod(self.g * self.f_q)
+        elif self.f_q is not None:
+            self.h = self.field_q.poly_mod(self.f_q * self.g * p)
 
     def init_polynomials(self, num_iter, choose_minus, d_f, d_g, q_exponent_of):
         inv_exists = False
         count = 0
 
+        f = None
         while not inv_exists and count < num_iter:
             count += 1
-            if self.f is None:
-                self.f = generate_random_binary_polynomial(self.N - 1, choose_minus, d_f)
 
-            inv_exists_p, self.f_p = self.field_p.poly_inverse(self.f)
+            if self.f is None:
+                f = generate_random_binary_polynomial(self.N - 1, choose_minus, d_f)
+            else:
+                f = self.f
+
+            inv_exists_p = True
+            if self.implementation == Implementation.OLD:
+                inv_exists_p, self.f_p = self.field_p.poly_inverse(f)
 
             if self.q % q_exponent_of == 0:
-                inv_exists_q, self.f_q = self.field_q.poly_inv_pow_2(self.f, q_exponent_of)
+                inv_exists_q, self.f_q = self.field_q.poly_inv_pow_2(f, q_exponent_of)
             else:
-                inv_exists_q, self.f_q = self.field_q.poly_inverse(self.f)
+                inv_exists_q, self.f_q = self.field_q.poly_inverse(f)
 
             inv_exists = inv_exists_p and inv_exists_q
 
-            if not inv_exists:
-                self.f = None
+        self.f = f
 
         if not inv_exists:
             raise RuntimeError('Could not generate random f')
 
         while self.g is None or self.g == np.poly1d(0):
-            self.g = generate_random_binary_polynomial(self.N - 1, choose_minus, d_g)
+            g = generate_random_binary_polynomial(self.N - 1, choose_minus, d_g)
+
+            if self.implementation == Implementation.NEW:
+                exists, _ = self.field_q.poly_inv_pow_2(g, q_exponent_of)
+                if exists:
+                    self.g = g
+            else:
+                self.g = g
 
 
 class NTRU:
@@ -61,7 +85,8 @@ class NTRU:
     def encrypt(self, message: np.poly1d):
         r = self.parameters.r
         while r is None or r == np.poly1d(0):
-            r = generate_random_binary_polynomial(self.parameters.N - 1, self.parameters.choose_minus, self.parameters.d_r)
+            r = generate_random_binary_polynomial(self.parameters.N - 1, self.parameters.choose_minus,
+                                                  self.parameters.d_r)
         return self.parameters.field_q.poly_mod(self.parameters.p * r * self.parameters.h + message)
 
     def decrypt(self, cipher_text: np.poly1d):

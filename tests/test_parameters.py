@@ -7,7 +7,7 @@ from ntru import NTRU, NTRUParameters
 class NTRUEncryptTest(unittest.TestCase):
     def test_f_generation(self):
 
-        for i in range(1000):
+        for i in range(100):
             parameters = NTRUParameters(107, 7, 67, d_f=(15, 14), d_g=(12, 12), d_r=(5, 5))
             if i % 100 == 0:
                 print('Iteration:', i)
@@ -25,7 +25,7 @@ class NTRUEncryptTest(unittest.TestCase):
     def test_algorithm_no_salt(self):
         text = np.poly1d(np.ones(40))
         salt = np.poly1d(1)
-        for i in range(1000):
+        for i in range(100):
             parameters = NTRUParameters(107, 7, 67, d_f=(15, 14), d_g=(12, 12), r=salt)
             if i % 100 == 0:
                 print('Iteration:', i)
@@ -38,7 +38,7 @@ class NTRUEncryptTest(unittest.TestCase):
 
     def test_algorithm(self):
         text = np.poly1d(np.ones(40))
-        num_iter = 1000
+        num_iter = 100
         count = 0
         for i in range(num_iter):
             parameters = NTRUParameters(107, 7, 67, d_f=(15, 14), d_g=(12, 12), d_r=(5, 5))

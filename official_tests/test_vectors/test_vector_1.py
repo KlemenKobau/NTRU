@@ -1,6 +1,6 @@
 import numpy as np
 
-from ntru import NTRU, NTRUParameters
+from ntru import NTRU, NTRUParameters, Implementation
 
 keygenSeed = [
     0x4d, 0xf5, 0x23, 0xce, 0x92, 0x11, 0x99, 0x0a, 0x30, 0xa4, 0xc1,
@@ -690,8 +690,9 @@ g = np.poly1d(g)
 h = np.poly1d(h)
 r = np.poly1d(r)
 
-PARAMETERS = NTRUParameters(401, 3, 2048, f=f, g=g, q_exponent_of=2)
+PARAMETERS = NTRUParameters(401, 3, 2048, f=f, g=g, r=r,
+                            q_exponent_of=2, implementation=Implementation.NEW)
 ntru = NTRU(PARAMETERS)
 
-if __name__ == '__main__':
-    print(min(a), max(a))
+assert ntru.parameters.field_q.poly_mod(ntru.parameters.f_q * ntru.parameters.f) == np.poly1d(1)
+assert ntru.parameters.h == h
