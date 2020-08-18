@@ -690,7 +690,7 @@ g = np.poly1d(g)
 h = np.poly1d(h)
 r = np.poly1d(r)
 
-PARAMETERS = NTRUParameters(450, 2, 2048, f=f, g=g)
+PARAMETERS = NTRUParameters(401, 3, 2048, f=f, g=g, q_exponent_of=2)
 ntru = NTRU(PARAMETERS)
 
 if __name__ == '__main__':

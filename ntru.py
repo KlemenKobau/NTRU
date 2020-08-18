@@ -6,7 +6,7 @@ from util import generate_random_binary_polynomial
 
 class NTRUParameters:
     def __init__(self, n, p, q, f=None, g=None, r=None, d_f: (int, int) = None, d_g=None, d_r=None,
-                 num_iter=1000, choose_minus=True):
+                 num_iter=1000, choose_minus=True, q_exponent_of=2):
         # public parameters
         self.N = n
         self.mod_poly = np.poly1d([1] + [0 for _ in range(self.N - 1)] + [-1])
@@ -23,10 +23,10 @@ class NTRUParameters:
         self.choose_minus = choose_minus
         self.d_r = d_r
 
-        self.init_polynomials(num_iter, choose_minus, d_f, d_g, d_r)
+        self.init_polynomials(num_iter, choose_minus, d_f, d_g, q_exponent_of)
         self.h = self.field_q.poly_mod(self.g * self.f_q)
 
-    def init_polynomials(self, num_iter, choose_minus, d_f, d_g, d_r):
+    def init_polynomials(self, num_iter, choose_minus, d_f, d_g, q_exponent_of):
         inv_exists = False
         count = 0
 
@@ -37,8 +37,8 @@ class NTRUParameters:
 
             inv_exists_p, self.f_p = self.field_p.poly_inverse(self.f)
 
-            if self.q % self.p == 0:
-                inv_exists_q, self.f_q = self.field_q.poly_inv_pow_2(self.f, self.p)
+            if self.q % q_exponent_of == 0:
+                inv_exists_q, self.f_q = self.field_q.poly_inv_pow_2(self.f, q_exponent_of)
             else:
                 inv_exists_q, self.f_q = self.field_q.poly_inverse(self.f)
 

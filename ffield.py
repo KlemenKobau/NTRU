@@ -127,7 +127,7 @@ class Field:
             normal_inv = field.poly_mod(2 * normal_inv - poly * normal_inv * normal_inv)
             e = e // 2
             n = n * 2
-        return
+        return True, normal_inv
 
     @lru_cache
     def __find_exponent(self, original: int, pow_number: int) -> (bool, np.poly1d):
