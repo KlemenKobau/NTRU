@@ -36,7 +36,11 @@ class NTRUParameters:
                 self.f = generate_random_binary_polynomial(self.N - 1, choose_minus, d_f)
 
             inv_exists_p, self.f_p = self.field_p.poly_inverse(self.f)
-            inv_exists_q, self.f_q = self.field_q.poly_inverse(self.f)
+
+            if self.q % self.p == 0:
+                inv_exists_q, self.f_q = self.field_q.poly_inv_pow_2(self.f, self.p)
+            else:
+                inv_exists_q, self.f_q = self.field_q.poly_inverse(self.f)
 
             inv_exists = inv_exists_p and inv_exists_q
 
