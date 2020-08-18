@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 import numpy as np
 import logging
 
@@ -11,8 +13,10 @@ class Field:
         if main_poly is not None:
             self.main_poly = self._poly_number_mod(main_poly)
 
-    def number_mod(self, number):
-        return (number + self.mod_number) % self.mod_number
+    def number_mod(self, number, mod_number=None):
+        if mod_number is None:
+            mod_number = self.mod_number
+        return (number + mod_number) % mod_number
 
     def number_inverse(self, number):
         if self.mod_number <= number:
@@ -39,34 +43,38 @@ class Field:
 
         return s_1
 
-    def _poly_number_mod(self, poly):
-        return np.poly1d(list(map(lambda x: self.number_mod(x), poly)))
+    def _poly_number_mod(self, poly, mod_number=None):
+        return np.poly1d(list(map(lambda x: self.number_mod(x, mod_number=mod_number), poly)))
 
-    def poly_mod(self, poly):
-        _, remainder = self.divide_poly(poly, self.main_poly)
+    def poly_mod(self, poly, mod_number=None):
+        _, remainder = self.divide_poly(poly, self.main_poly, mod_number=mod_number)
         return remainder
 
-    def divide_poly(self, poly: np.poly1d, poly_div: np.poly1d):
+    def divide_poly(self, poly: np.poly1d, poly_div: np.poly1d, mod_number=None):
+        if mod_number is None:
+            mod_number = self.mod_number
+
         if poly_div == np.poly1d(0):
             raise RuntimeError('Dividing by zero polynomial')
 
-        remainder = self._poly_number_mod(poly)
-        poly_div = self._poly_number_mod(poly_div)
+        remainder = self._poly_number_mod(poly, mod_number)
+        poly_div = self._poly_number_mod(poly_div, mod_number)
 
         # starts with x^n
         quotient = [0 for _ in range(poly.order + 1)]
 
         while poly_div.order <= remainder.order and remainder != np.poly1d(0):
-            multi = self.number_mod(self.number_inverse(poly_div[poly_div.order]) * remainder[remainder.order])
+            multi = self.number_mod(self.number_inverse(poly_div[poly_div.order]) * remainder[remainder.order],
+                                    mod_number)
             order_diff = remainder.order - poly_div.order
             order_diff_poly = np.poly1d([1 if i == 0 else 0 for i in range(order_diff + 1)])
-            divisor = self._poly_number_mod(poly_div * multi * order_diff_poly)
+            divisor = self._poly_number_mod(poly_div * multi * order_diff_poly, mod_number)
 
-            quotient[len(quotient) - 1 - order_diff] = self.number_mod(multi)
+            quotient[len(quotient) - 1 - order_diff] = self.number_mod(multi, mod_number)
 
-            remainder = self._poly_number_mod(remainder - divisor)
+            remainder = self._poly_number_mod(remainder - divisor, mod_number)
 
-        return self._poly_number_mod(quotient), self._poly_number_mod(remainder)
+        return self._poly_number_mod(quotient, mod_number), self._poly_number_mod(remainder, mod_number)
 
     def poly_inverse(self, poly: np.poly1d, verbose=False) -> (bool, np.poly1d):
         s_0 = np.poly1d(0)
@@ -109,3 +117,29 @@ class Field:
             return False, None
 
         return True, self.poly_mod(s_0 * self.number_inverse(r_0[0]))
+
+    def poly_inv_pow_2(self, poly: np.poly1d, original_prime) -> (bool, np.poly1d):
+        exists, normal_inv = self.poly_inverse(poly)
+        if not exists:
+            return False, None
+
+        n = 2
+        exists, e = self.__find_exponent(original_prime, self.mod_number)
+        if not exists:
+            return False, None
+        while e > 0:
+            normal_inv = self.poly_mod(2 * normal_inv - poly * normal_inv * normal_inv,
+                                       mod_number=original_prime ** n)
+            e = e // 2
+            n = n * 2
+        return
+
+    @lru_cache
+    def __find_exponent(self, original: int, pow_number: int) -> (bool, np.poly1d):
+        e = 0
+        while pow_number > 1:
+            if pow_number % original != 0:
+                return False, None
+            e = e + 1
+            pow_number = pow_number // original
+        return True, e

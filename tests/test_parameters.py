@@ -41,7 +41,7 @@ class NTRUEncryptTest(unittest.TestCase):
         num_iter = 1000
         count = 0
         for i in range(num_iter):
-            parameters = NTRUParameters(107, 7, 67, d_f=(15, 14), d_g=(12, 12), d_r=(5,5))
+            parameters = NTRUParameters(107, 7, 67, d_f=(15, 14), d_g=(12, 12), d_r=(5, 5))
             if i % 100 == 0:
                 print('Iteration:', i)
 
@@ -54,6 +54,7 @@ class NTRUEncryptTest(unittest.TestCase):
 
         print(count / num_iter)
         self.assertTrue(count / num_iter > 0.6)
+
 
 if __name__ == '__main__':
     unittest.main()

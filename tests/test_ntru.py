@@ -29,42 +29,6 @@ class NTRUEncryptTest(unittest.TestCase):
 
         self.assertEqual(expected_message, ntru.decrypt(cipher_text))
 
-    def test_ntru_1(self):
-        parameters = NTRUParameters(10, 17, 139, choose_minus=False)
-        ntru = NTRU(parameters)
-        text = np.poly1d([2, 5, 6, 3, 7, 5, 3, 7, 2, 4, 7, 8, 9])
-        text = ntru.parameters.field_p.poly_mod(text)
-        text = ntru.center_polynomial_p(text)
-
-        cipher = ntru.encrypt(text)
-        decrypted = ntru.decrypt(cipher)
-
-        if text != decrypted:
-            print('Text:')
-            print(text)
-            print('Decrypted:')
-            print(decrypted)
-
-        self.assertEqual(text, decrypted)
-
-    def test_ntru_2(self):
-        parameters = NTRUParameters(107, 3, 67, choose_minus=False)
-        ntru = NTRU(parameters)
-        text = np.poly1d(np.poly1d(np.ones(1)))
-        text = ntru.parameters.field_p.poly_mod(text)
-        text = ntru.center_polynomial_p(text)
-
-        cipher = ntru.encrypt(text)
-        decrypted = ntru.decrypt(cipher)
-
-        if text != decrypted:
-            print('Text:')
-            print(text)
-            print('Decrypted:')
-            print(decrypted)
-
-        self.assertEqual(text, decrypted)
-
 
 if __name__ == '__main__':
     unittest.main()
