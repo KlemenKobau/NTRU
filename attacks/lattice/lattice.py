@@ -24,7 +24,7 @@ def lattice_attack(public_key: np.poly1d, q: int, n: int, first):
         print('Public key')
         print(public_key)
         print(whole)
-    return np.array(olll.reduction(whole, 0.9))
+    return np.array(olll.reduction(whole, 0.7))
 
 
 def check_for_public_key(private_key: np.poly1d, reduced_basis: np.ndarray):
@@ -51,7 +51,7 @@ def check_for_public_key(private_key: np.poly1d, reduced_basis: np.ndarray):
 
 
 if __name__ == '__main__':
-    PARAMETERS = NTRUParameters(7, 3, 61, d_f=(2, 0), d_g=(2, 0), d_r=(3, 0))
+    PARAMETERS = NTRUParameters(5, 3, 61, d_f=(2, 0), d_g=(2, 0), d_r=(3, 0))
     ntru = NTRU(PARAMETERS)
 
     text = ntru.parameters.field_p.poly_mod(np.poly1d([1, 1, 1, 1]))
