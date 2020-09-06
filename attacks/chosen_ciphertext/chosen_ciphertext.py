@@ -48,10 +48,22 @@ def get_decrypted_chosen(ntru: NTRU):
 
             if f_candidate == ntru.parameters.f:
                 print('Key found')
+                print('Chosen ciphertext:')
+                print(chosen_ciphertext)
+                print('Private key:')
+                print(ntru.parameters.f)
+                print('K')
+                print(k)
+                print('Public key')
+                print(ntru.parameters.h)
+                print('C')
+                print(c)
+
                 return
 
 
 if __name__ == '__main__':
-    PARAMETERS = NTRUParameters(15, 3, 61)
+    PARAMETERS = NTRUParameters(15, 3, 61, d_f=(4,0), d_g=(4,0))
     ntru = NTRU(PARAMETERS)
     get_decrypted_chosen(ntru)
+    print()

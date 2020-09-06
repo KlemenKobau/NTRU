@@ -23,7 +23,12 @@ def lattice_attack(public_key: np.poly1d, q: int, n: int, first):
     if first:
         print('Public key')
         print(public_key)
+        print('Basis')
         print(whole)
+        print('f')
+        print(ntru.parameters.f)
+        print('g')
+        print(ntru.parameters.g)
     return np.array(olll.reduction(whole, 0.7))
 
 
@@ -65,5 +70,6 @@ if __name__ == '__main__':
         count += 1
         if count % 10 == 0:
             print('Count:', count)
+        break
     print(new_basis)
     print()
