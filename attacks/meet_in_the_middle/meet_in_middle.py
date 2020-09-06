@@ -50,9 +50,15 @@ def meet_in_the_middle(n, public_key, ntru: NTRU):
                     if i not in [0, 1]:
                         break
                 else:
-                    print('Found candidate:')
-                    print(combined)
                     if combined == ntru.parameters.f:
+                        print('Found candidate:')
+                        print(combined)
+                        print('First')
+                        print(first)
+                        print('Second')
+                        print(second)
+                        print('Hash')
+                        print(poly_a)
                         return True, combined
 
         return False, None
@@ -84,12 +90,10 @@ def meet_in_the_middle(n, public_key, ntru: NTRU):
 
     print('Truth:')
     print(ntru.parameters.f)
-    print(table)
-
 
 if __name__ == '__main__':
-    parameters = NTRUParameters(11, 11, 139, choose_minus=False)
+    parameters = NTRUParameters(7, 3, 61, choose_minus=False)
     ntru = NTRU(parameters)
 
-    assert ntru.decrypt(ntru.encrypt(np.poly1d([1, 1, 5, 1]))) == np.poly1d([1, 1, 5, 1])
-    # meet_in_the_middle(ntru.parameters.N, ntru.parameters.h, ntru)
+    assert ntru.decrypt(ntru.encrypt(np.poly1d([1, 1, 1, 1]))) == np.poly1d([1, 1, 1, 1])
+    meet_in_the_middle(ntru.parameters.N, ntru.parameters.h, ntru)
